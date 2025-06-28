@@ -104,7 +104,7 @@ class ServeClientBase(object):
     def handle_transcription_output(self, result, duration):
         raise NotImplementedError
     
-    def format_segment(self, start, end, text, completed=False):
+    def format_segment(self, start, end, text, completed=False, probability=0.0):
         """
         Formats a transcription segment with precise start and end times alongside the transcribed text.
 
@@ -122,7 +122,8 @@ class ServeClientBase(object):
             'start': "{:.3f}".format(start),
             'end': "{:.3f}".format(end),
             'text': text,
-            'completed': completed
+            'completed': completed,
+            'probability': probability,
         }
 
     def add_frames(self, frame_np):
@@ -305,9 +306,10 @@ class ServeClientBase(object):
                     end = self.timestamp_offset + min(duration, self.get_segment_end(s))
                 if start >= end:
                     continue
-                if self.get_segment_no_speech_prob(s) > self.no_speech_thresh:
+                pro = self.get_segment_no_speech_prob(s)
+                if pro > self.no_speech_thresh:
                     continue
-                self.transcript.append(self.format_segment(start, end, text_, completed=True))
+                self.transcript.append(self.format_segment(start, end, text_, completed=True, probability=pro))
                 offset = min(duration, self.get_segment_end(s))
 
         # Process the last segment if its no_speech_prob is acceptable.
@@ -340,10 +342,12 @@ class ServeClientBase(object):
             if not self.text or self.text[-1].strip().lower() != self.current_out.strip().lower():
                 self.text.append(self.current_out)
                 with self.lock:
+
                     self.transcript.append(self.format_segment(
                         self.timestamp_offset,
                         self.timestamp_offset + min(duration, self.end_time_for_same_output),
                         self.current_out,
+                        # probability= self.get_segment_no_speech_prob(segments[-1]),
                         completed=True
                     ))
             self.current_out = ''
