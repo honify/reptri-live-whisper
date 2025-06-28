@@ -222,11 +222,11 @@ class TranscriptionServer:
                 client = ServeClientFasterWhisper(
                     websocket,
                     # AZINJA
-                    temperature=[0.0],
-                    log_prob_threshold=-2.0,
-                    condition_on_previous_text= True,
-                    word_timestamps=True,
-                    hallucination_silence_threshold=2.0,
+                    temperature=list(map(float, options["temperature"].split(","))),
+                    log_prob_threshold=options["log_prob_threshold"],
+                    condition_on_previous_text=options["condition_on_previous_text"],
+                    word_timestamps=options["word_timestamps"],
+                    hallucination_silence_threshold=options["hallucination_silence_threshold"],
                     language=options["language"],
                     task=options["task"],
                     client_uid=options["uid"],
