@@ -89,11 +89,11 @@ class ServeClientFasterWhisper(ServeClientBase):
             clip_audio,
             same_output_threshold,
         )
-        self.temperature = temperature,
-        self.log_prob_threshold = log_prob_threshold,
-        self.condition_on_previous_text = condition_on_previous_text,
-        self.word_timestamps = word_timestamps,
-        self.hallucination_silence_threshold = hallucination_silence_threshold,
+        self.temperature = temperature
+        self.log_prob_threshold = log_prob_threshold
+        self.condition_on_previous_text = condition_on_previous_text
+        self.word_timestamps = word_timestamps
+        self.hallucination_silence_threshold = hallucination_silence_threshold
 
         self.cache_path = cache_path
         self.model_sizes = [
