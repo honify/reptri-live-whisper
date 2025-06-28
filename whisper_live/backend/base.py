@@ -314,13 +314,15 @@ class ServeClientBase(object):
 
         # Process the last segment if its no_speech_prob is acceptable.
         if self.get_segment_no_speech_prob(segments[-1]) <= self.no_speech_thresh:
+            pro_last = self.get_segment_no_speech_prob(segments[-1])  # ← NEW
             self.current_out += segments[-1].text
             with self.lock:
                 last_segment = self.format_segment(
                     self.timestamp_offset + self.get_segment_start(segments[-1]),
                     self.timestamp_offset + min(duration, self.get_segment_end(segments[-1])),
                     self.current_out,
-                    completed=False
+                    completed=False,
+                    probability=pro_last  # ← NEW
                 )
 
         # Handle repeated output logic.
@@ -339,6 +341,7 @@ class ServeClientBase(object):
         # If the same incomplete segment is repeated too many times,
         # append it to the transcript and update the offset.
         if self.same_output_count > self.same_output_threshold:
+            pro_last = self.get_segment_no_speech_prob(segments[-1])  # ← NEW
             if not self.text or self.text[-1].strip().lower() != self.current_out.strip().lower():
                 self.text.append(self.current_out)
                 with self.lock:
@@ -347,8 +350,8 @@ class ServeClientBase(object):
                         self.timestamp_offset,
                         self.timestamp_offset + min(duration, self.end_time_for_same_output),
                         self.current_out,
-                        # probability= self.get_segment_no_speech_prob(segments[-1]),
-                        completed=True
+                        completed=True,
+                        probability=pro_last  # ← NEW
                     ))
             self.current_out = ''
             offset = min(duration, self.end_time_for_same_output)
