@@ -253,6 +253,8 @@ class ServeClientFasterWhisper(ServeClientBase):
         if ServeClientFasterWhisper.SINGLE_MODEL:
             ServeClientFasterWhisper.SINGLE_MODEL_LOCK.release()
 
+        print('info', info)
+        print('result', result)
         if self.language is None and info is not None:
             self.set_language(info)
         return result
